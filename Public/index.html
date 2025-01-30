@@ -1,45 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="C:\Users\omarb\OneDrive\Desktop\TRIAL\Screenshot 2024-05-23 160143.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sketch-To-Art</title>
+    <title>Sketch-TO-Art</title>
     <style>
-        body {
+        /* Reset default margins and paddings */
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        .container {
-            max-width: 800px;
-        }
-        .title {
-            font-size: 10rem;
-            font-weight: bold;
-            color: blue;
-            width: 100%;
-            
-        }
-        .description {
-            font-size: 1rem;
-            margin: 20px 0;
-            line-height: 1.5;
-        }
-        .btn {
-
-
-            color: white;
-            background-color: #363434;
-            text-decoration: none;
-            border-radius: 12px;
-
         }
         .net {
             position: absolute;
@@ -50,22 +20,114 @@
             z-index: -1;
         }
 
- 
+        /* Body and Background Styling */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: #f4f4f4;
+        }
 
+        /* Container Grid */
+        .container {
+            max-width: 1300px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns */
+            gap: 40px; /* Spacing between columns */
+            padding: 40px;
+            background-color: #f4f4f419;
+            border-radius: 10px;
+        }
+
+        /* Columns as Nested Grids */
+        .column {
+            display: grid;
+            grid-template-rows: auto auto auto auto auto auto; /* 6 rows for sections */
+            gap: 15px; /* Spacing between sections */
+            align-items: start; /* Align content to top */
+        }
+
+        /* English Alignment */
+        .column:not(.arabic) {
+            text-align: left;
+        }
+
+        /* Arabic Alignment */
+        .column.arabic {
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Sections (h1, p, ul, etc.) */
+        .section {
+            min-height: 100%; /* Force sections to fill row height */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align content to top */
+        }
+
+        /* Headings and Text Styling */
+        h1 { font-size: 2.5em; color: #007BFF; }
+        h2 { font-size: 1.5em; margin: 10px 0; }
+        p, ul { font-size: 1.2em; line-height: 1.6; }
+        ul { padding: 0; list-style: none; }
+
+        /* Button Styling */
+        .button {
+            width: 220px;
+            padding: 12px;
+            background-color: #007BFF;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: auto; /* Push button to bottom of section */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
     </style>
-
 </head>
 <body>
+    <div class="container">
+        <!-- English Column -->
+        <div class="column">
+            <div class="section"><h1>🎨 Sketch-TO-Art</h1></div>
+            <div class="section"><p><strong>✨ Turn Your Doodles into Stunning AI-Generated Art! ✨</strong></p></div>
+            <div class="section"><p>Ever wondered what your simple sketch could become? 🤔 With this cutting-edge GenAI-powered experience, your doodles transform into breathtaking artwork in seconds! ⚡</p></div>
+            <div class="section"><h2>🚀 How It Works:</h2></div>
+            <div class="section"><ul>
+                <li>🌌 Imagine a scene</li>
+                <li>✏️ Sketch it out</li>
+                <li>🤖 Watch AI bring it to life!</li>
+            </ul></div>
+            <div class="section"><p>This app makes AI creativity effortless, fun, and magical. 🎉 So grab your imagination, start drawing, and let the AI do the rest! 🖌️</p></div>
+            <div class="section"><a href="/sketch" class="button">🌟 Start 🌟</a></div>
+        </div>
 
-    <div class="container" width="100" >
-        <div class="title">Sketch-To-Art</div>
-        <p class="description">this experience is about taking a simple doodle and turning it into an artwork. This application makes use of state-of-the-art GenAI models. Its aim is to make interacting with AI easier and fun! So, have a try at it, think of a scene, draw it, and watch it come to life.</p>
-        <a href="/sketch" class="btn" > <label class="text">Start the Experience</label>  </a>
+        <!-- Arabic Column -->
+        <div class="column arabic">
+            <div class="section"><h1>🎨 تحويل الرسم إلى فن</h1></div>
+            <div class="section"><p><strong>✨ حول خريشاتك إلى أعمال فنية مدفعة بتقنية الذكاء الاصطناعي ✨</strong></p></div>
+            <div class="section"><p>هل تساءلت يومًا عما يمكن أن تصبح عليه رسمياتك البسيطة؟ 🤔 مع هذه التجربة المتقدمة المدعومة بالذكاء الاصطناعي، تتحول خريشاتك إلى لوحات فنية رائعة في ثوانٍ! ⚡</p></div>
+            <div class="section"><h2>🚀 كيف يعمل؟</h2></div>
+            <div class="section"><ul>
+                <li>🌌 تخيل مشهدًا</li>
+                <li>✏️ أرسمه بخطوط بسيطة</li>
+                <li>🤖 شاهد الذكاء الاصطناعي يجلبها إلى الحياة!</li>
+            </ul></div>
+            <div class="section"><p>هذا التطبيق يجعل الإبداع بالذكاء الاصطناعي سهلاً، ممتعًا، وساحرًا. 🎉 لذا أطلق العنان لخيالك، ابدأ الرسم، ودع الذكاء الاصطناعي يتكفل بالباقي! 🖌️</p></div>
+            <div class="section"><a href="/sketch" class="button">🌟 ابدأ التجربة 🌟</a></div>
+        </div>
     </div>
 
-
     <div class="net"></div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.net.min.js"></script>
     <script>
