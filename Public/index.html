@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sketch-To-Art</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .title {
+            font-size: 10rem;
+            font-weight: bold;
+            color: blue;
+            width: 100%;
+            
+        }
+        .description {
+            font-size: 1rem;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+        .btn {
+
+
+            color: white;
+            background-color: #363434;
+            text-decoration: none;
+            border-radius: 12px;
+
+        }
+        .net {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: -1;
+        }
+
+ 
+
+    </style>
+
+</head>
+<body>
+
+    <div class="container" width="100" >
+        <div class="title">Sketch-To-Art</div>
+        <p class="description">this experience is about taking a simple doodle and turning it into an artwork. This application makes use of state-of-the-art GenAI models. Its aim is to make interacting with AI easier and fun! So, have a try at it, think of a scene, draw it, and watch it come to life.</p>
+        <a href="/sketch" class="btn" > <label class="text">Start the Experience</label>  </a>
+    </div>
+
+
+    <div class="net"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.net.min.js"></script>
+    <script>
+VANTA.NET({
+  el: ".net",
+  mouseControls: true,
+  touchControls: true,
+  gyroControls: false,
+  minHeight: 200.00,
+  minWidth: 200.00,
+  scale: 1.00,
+  scaleMobile: 1.00,
+  color: 0x5700f7,
+  backgroundColor: 0x110120,
+  points: 11.00,
+  maxDistance: 19.00
+
+})
+    </script>
+</body>
+</html>
