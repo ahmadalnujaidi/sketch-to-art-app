@@ -23,24 +23,24 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Serve static files from the "public" directory
-app.use(express.static("public"));
+app.use(express.static("Public"));
 
 // Parse JSON bodies for POST requests
 app.use(express.json({ limit: "10mb" })); // Increase limit if needed
 
 // Route for the landing page
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "Public", "index.html"));
 });
 
 // Route for the sketch page
 app.get("/sketch", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "sketch.html"));
+  res.sendFile(path.join(__dirname, "Public", "sketch.html"));
 });
 
 // Route for the results page
 app.get("/results", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "results.html"));
+  res.sendFile(path.join(__dirname, "Public", "results.html"));
 });
 
 // Route to handle saving the canvas image
