@@ -132,35 +132,16 @@
             console.error("Error:", error);
           });
       }
-      // async function sendImageToOpenAI() {
-      //         const canvas = document.getElementById('yourCanvasId'); // Replace with your actual canvas ID
-      //         const imageBase64 = canvas.toDataURL('image/png').split(',')[1]; // Remove data URI prefix
 
-      //         try {
-      //             const response = await fetch("/analyze-image", { // Changed to relative path
-      //                 method: "POST",
-      //                 headers: { "Content-Type": "application/json" },
-      //                 body: JSON.stringify({ image_base64: imageBase64 }),
-      //             });
-
-      //             const data = await response.json();
-
-      //             if (data.description) {
-      //                 console.log("AI Description:", data.description);
-      //                 alert("Image description:\n" + data.description);
-      //             } else if (data.error) {
-      //                 alert("Error: " + data.error);
-      //             } else {
-      //                 alert("Failed to analyze image.");
-      //             }
-      //         } catch (error) {
-      //             console.error("Error sending image to server:", error);
-      //         }
-      //     }
       canvas.addEventListener("mousedown", startDrawing);
       canvas.addEventListener("mousemove", draw);
       canvas.addEventListener("mouseup", stopDrawing);
       canvas.addEventListener("mouseout", stopDrawing);
+
+      canvas.addEventListener("touchstart", startDrawing);
+      canvas.addEventListener("touchmove", draw);
+      canvas.addEventListener("touchend", stopDrawing);
+      canvas.addEventListener("touchcancel", stopDrawing);
 
       // ######################################################################
     </script>
