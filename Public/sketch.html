@@ -86,10 +86,27 @@
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // Get canvas position for touch events
+      function getCanvasCoordinates(event) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = event.touches[0];
+        return {
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top,
+        };
+      }
+
       function startDrawing(event) {
         drawing = true;
-        ctx.beginPath();
-        ctx.moveTo(event.offsetX, event.offsetY);
+        if (event.type === "mousedown") {
+          ctx.beginPath();
+          ctx.moveTo(event.offsetX, event.offsetY);
+        } else if (event.type === "touchstart") {
+          event.preventDefault();
+          const pos = getCanvasCoordinates(event);
+          ctx.beginPath();
+          ctx.moveTo(pos.x, pos.y);
+        }
       }
 
       function draw(event) {
@@ -97,7 +114,14 @@
         ctx.lineWidth = 4;
         ctx.lineCap = "round";
         ctx.strokeStyle = "black";
-        ctx.lineTo(event.offsetX, event.offsetY);
+
+        if (event.type === "mousemove") {
+          ctx.lineTo(event.offsetX, event.offsetY);
+        } else if (event.type === "touchmove") {
+          event.preventDefault();
+          const pos = getCanvasCoordinates(event);
+          ctx.lineTo(pos.x, pos.y);
+        }
         ctx.stroke();
       }
 
@@ -132,12 +156,47 @@
             console.error("Error:", error);
           });
       }
+
+      // Mouse event listeners
       canvas.addEventListener("mousedown", startDrawing);
       canvas.addEventListener("mousemove", draw);
       canvas.addEventListener("mouseup", stopDrawing);
       canvas.addEventListener("mouseout", stopDrawing);
 
-      // ######################################################################
+      // Touch event listeners
+      canvas.addEventListener("touchstart", startDrawing);
+      canvas.addEventListener("touchmove", draw);
+      canvas.addEventListener("touchend", stopDrawing);
+      canvas.addEventListener("touchcancel", stopDrawing);
+
+      // Prevent scrolling while drawing
+      document.body.addEventListener(
+        "touchstart",
+        function (e) {
+          if (e.target == canvas) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+      document.body.addEventListener(
+        "touchend",
+        function (e) {
+          if (e.target == canvas) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+      document.body.addEventListener(
+        "touchmove",
+        function (e) {
+          if (e.target == canvas) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
     </script>
     <div class="net"></div>
 
