@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Generated Image</title>
+    <link rel="stylesheet" href="companylogo.css" />
     <style>
-           .net {
+      .net {
         position: absolute;
         width: 100%;
         height: 100%;
         left: 0;
         top: 0;
         z-index: -1;
-    }
+      }
 
-    /* Center the entire content */
-    body {
+      /* Center the entire content */
+      body {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -24,9 +25,9 @@
         background-color: #f4f4f4;
         font-family: Arial, sans-serif;
         overflow: hidden; /* Prevent scrolling */
-    }
+      }
 
-    .container {
+      .container {
         text-align: center;
         background: rgba(255, 255, 255, 0.263);
         padding: 20px;
@@ -35,14 +36,14 @@
         max-width: 90vw; /* Ensures it does not take full width */
         max-height: 90vh; /* Ensures it does not take full height */
         overflow: hidden; /* Ensures content does not leak out */
-    }
+      }
 
-    h1 {
+      h1 {
         margin-bottom: 10px;
-    }
+      }
 
-    /* Loader Animation */
-    .loader {
+      /* Loader Animation */
+      .loader {
         border: 6px solid rgba(255, 255, 255, 0.3);
         border-top: 6px solid #5700f7;
         border-radius: 50%;
@@ -50,14 +51,18 @@
         height: 50px;
         animation: spin 1s linear infinite;
         margin: 20px auto;
-    }
+      }
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-    img {
+      img {
         display: none;
         max-width: 100%; /* Ensures it does not exceed container width */
         max-height: 80vh; /* Ensures it does not exceed screen height */
@@ -65,83 +70,70 @@
         height: auto;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
+      }
     </style>
-</head>
-<body>
-    <div class="container" >
-        <!-- <h1>Generated Image</h1> -->
-        <div id="loader" class="loader"></div> <!-- New Loading Spinner -->
-        <img id="generatedImage" src="" alt="Generated Image" />
-        <a href="index.html" id="homeButton" class="home-link" style="display: none;">Go Back Home</a> <!-- Hidden initially -->
+  </head>
+  <body>
+    <div class="logo-container">
+      <img src="assets/companylogo1.png" alt="Company Logo" />
+    </div>
+    <div class="container">
+      <!-- <h1>Generated Image</h1> -->
+      <div id="loader" class="loader"></div>
+      <!-- New Loading Spinner -->
+      <img id="generatedImage" src="" alt="Generated Image" />
+      <a
+        href="index.html"
+        id="homeButton"
+        class="home-link"
+        style="display: none"
+        >Go Back Home</a
+      >
+      <!-- Hidden initially -->
     </div>
     <style>
-        .home-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            text-decoration: none;
-            background-color: #5700f7;
-            color: white;
-            font-weight: bold;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-    
-        .home-link:hover {
-            background-color: #4300c4;
-        }
+      .home-link {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        text-decoration: none;
+        background-color: #5700f7;
+        color: white;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: 0.3s;
+      }
+
+      .home-link:hover {
+        background-color: #4300c4;
+      }
     </style>
 
     <script>
-        async function generateAndPollImage() {
-            try {
-                // Example: You can replace this with an actual user input image URL
-                const imageUrl = "https://example.com/sample.jpg"; 
+      async function fetchAndDisplayImage() {
+        try {
+          const response = await fetch("/get_generated_image/");
+          const result = await response.json();
 
-                // Send request to generate image
-                const response = await fetch('/generate_description', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: imageUrl })
-                });
-
-                const data = await response.json();
-                if (!data.success) {
-                    document.getElementById('loader').style.display = "none"; // Hide loader on error
-                    return;
-                }
-
-                const requestId = data.requestId;
-
-                // Polling function to check if image is ready
-                async function checkForImage() {
-                    try {
-                        const response = await fetch(`/get_generated_image/${requestId}`);
-                        const result = await response.json();
-
-                        if (result.success) {
-                            document.getElementById('loader').style.display = "none"; // Hide loader
-                            const imageElement = document.getElementById('generatedImage');
-                            imageElement.src = result.imageUrl;
-                            imageElement.style.display = "block";
-                            document.getElementById('homeButton').style.display = "inline-block";
-                        } else {
-                            setTimeout(checkForImage, 3000); // Check again in 3 seconds
-                        }
-                    } catch (error) {
-                        console.error("Error fetching image:", error);
-                    }
-                }
-
-                checkForImage();
-            } catch (error) {
-                console.error("Error generating image:", error);
-            }
+          if (result.success) {
+            document.getElementById("loader").style.display = "none";
+            const imageElement = document.getElementById("generatedImage");
+            imageElement.src = result.imageUrl;
+            imageElement.style.display = "block";
+            document.getElementById("homeButton").style.display =
+              "inline-block";
+          } else {
+            console.log("No image available");
+            setTimeout(fetchAndDisplayImage, 3000); // Retry after 3 seconds
+          }
+        } catch (error) {
+          console.error("Error fetching image:", error);
+          setTimeout(fetchAndDisplayImage, 3000); // Retry on error
         }
+      }
 
-        // Automatically start image generation when the page loads
-        generateAndPollImage();
+      // Start fetching when the page loads
+      fetchAndDisplayImage();
     </script>
 
     <div class="net"></div>
@@ -149,20 +141,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.net.min.js"></script>
     <script>
-        VANTA.NET({
-          el: ".net",
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.00,
-          minWidth: 200.00,
-          scale: 1.00,
-          scaleMobile: 1.00,
-          color: 0x5700f7,
-          backgroundColor: 0x110120,
-          points: 11.00,
-          maxDistance: 19.00
-        })
+      VANTA.NET({
+        el: ".net",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.0,
+        minWidth: 200.0,
+        scale: 1.0,
+        scaleMobile: 1.0,
+        color: 0x5700f7,
+        backgroundColor: 0x110120,
+        points: 11.0,
+        maxDistance: 19.0,
+      });
     </script>
-</body>
+  </body>
 </html>
