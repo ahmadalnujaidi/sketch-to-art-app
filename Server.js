@@ -90,7 +90,7 @@ app.post("/generate_description", async (req, res) => {
     });
 
     // the text itself is in response.choices[0].message.content[0].text
-    console.log(response.choices[0].message.content);
+    // console.log(response.choices[0].message.content);
 
     // Generate a unique ID for this request
 
@@ -101,7 +101,7 @@ app.post("/generate_description", async (req, res) => {
     // Store the generated image URL
     imageStore.push(storedImageDataUrl);
 
-    console.log(imageStore);
+    // console.log(imageStore);
     res.json({ success: true });
   } catch (error) {
     console.error(error);
@@ -129,7 +129,7 @@ const generateImage = async (description) => {
     style: "natural",
     n: 1,
   });
-  console.log(generatedImage.data);
+  // console.log(generatedImage.data);
 
   // Simulate a delay for the image generation
   // await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -143,5 +143,5 @@ const generateImage = async (description) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  // console.log(`Server running at http://localhost:${port}`);
 });
