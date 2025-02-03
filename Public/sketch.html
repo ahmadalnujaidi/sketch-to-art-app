@@ -138,25 +138,6 @@
       canvas.addEventListener("mouseup", stopDrawing);
       canvas.addEventListener("mouseout", stopDrawing);
 
-      canvas.addEventListener(
-        "touchstart",
-        function (e) {
-          e.preventDefault();
-          startDrawing(e);
-        },
-        { passive: false }
-      );
-      canvas.addEventListener(
-        "touchmove",
-        function (e) {
-          e.preventDefault();
-          draw(e);
-        },
-        { passive: false }
-      );
-      canvas.addEventListener("touchend", stopDrawing);
-      canvas.addEventListener("touchcancel", stopDrawing);
-
       // ######################################################################
     </script>
     <div class="net"></div>
