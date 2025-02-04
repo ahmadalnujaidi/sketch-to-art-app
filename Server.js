@@ -24,7 +24,19 @@ if (!fs.existsSync(uploadsDir)) {
 app.use(express.static("Public"));
 
 // Parse JSON bodies for POST requests
-app.use(express.json({ limit: "10mb" })); // Increase limit if needed
+app.use(
+  express.json({
+    limit: "100mb",
+    extended: true,
+  })
+); // Increase limit if needed
+
+app.use(
+  express.urlencoded({
+    limit: "100mb",
+    extended: true,
+  })
+);
 
 // Route for the landing page
 app.get("/", (req, res) => {
@@ -47,9 +59,20 @@ let imageStore = []; // Store images for different requests
 app.post("/generate_description", async (req, res) => {
   try {
     const imageUrl = req.body.image;
-    // console.log(`Received image: ${imageUrl}`);
 
-    const response = await openai.chat.completions.create({
+    if (!imageUrl) {
+      return res.status(400).json({
+        success: false,
+        error: "No image data provided",
+      });
+    }
+
+    // Add timeout for OpenAI requests
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("OpenAI request timeout")), 25000);
+    });
+
+    const responsePromise = openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
@@ -71,6 +94,8 @@ app.post("/generate_description", async (req, res) => {
       store: true,
     });
 
+    const response = await Promise.race([responsePromise, timeoutPromise]);
+
     // the text itself is in response.choices[0].message.content[0].text
     console.log(response.choices[0].message.content);
 
@@ -84,8 +109,12 @@ app.post("/generate_description", async (req, res) => {
     // console.log(imageStore);
     res.json({ success: true });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: "Failed to process image" });
+    console.error("Error details:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to process image",
+      message: error.message,
+    });
   }
 });
 
@@ -115,6 +144,16 @@ const generateImage = async (description) => {
 
   return generatedImage.data[0].url;
 };
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    error: "Internal Server Error",
+    message: err.message,
+  });
+});
 
 // Start the server
 app.listen(port, () => {
