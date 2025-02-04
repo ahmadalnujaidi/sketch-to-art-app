@@ -83,10 +83,19 @@
       let drawing = false;
       let lastX, lastY;
 
+      // Improved device detection
+      const isTouchDevice = () => {
+        return (
+          "ontouchstart" in window ||
+          navigator.maxTouchPoints > 0 ||
+          navigator.msMaxTouchPoints > 0
+        );
+      };
+
       // Set canvas size based on device
       function setCanvasSize() {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile) {
+        const isTouch = isTouchDevice();
+        if (isTouch) {
           canvas.width = Math.min(window.innerWidth * 0.9, 800);
           canvas.height = Math.min(window.innerHeight * 0.6, 600);
         } else {
@@ -102,48 +111,42 @@
       setCanvasSize();
       window.addEventListener("resize", setCanvasSize);
 
-      function getMousePos(event) {
+      function getEventCoords(event) {
         const rect = canvas.getBoundingClientRect();
-        return {
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top,
-        };
-      }
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
 
-      function getTouchPos(touch) {
-        const rect = canvas.getBoundingClientRect();
+        if (event.type.includes("touch")) {
+          const touch = event.touches[0] || event.changedTouches[0];
+          return {
+            x: (touch.clientX - rect.left) * scaleX,
+            y: (touch.clientY - rect.top) * scaleY,
+          };
+        }
         return {
-          x: touch.clientX - rect.left,
-          y: touch.clientY - rect.top,
+          x: (event.clientX - rect.left) * scaleX,
+          y: (event.clientY - rect.top) * scaleY,
         };
       }
 
       function startDrawing(e) {
         drawing = true;
-        if (e.type === "mousedown") {
-          const pos = getMousePos(e);
-          lastX = pos.x;
-          lastY = pos.y;
-        } else if (e.type === "touchstart") {
-          e.preventDefault();
-          const pos = getTouchPos(e.touches[0]);
-          lastX = pos.x;
-          lastY = pos.y;
-        }
+        const coords = getEventCoords(e);
+        lastX = coords.x;
+        lastY = coords.y;
         ctx.beginPath();
         ctx.moveTo(lastX, lastY);
+
+        // Prevent scrolling on all touch devices
+        if (e.type.includes("touch")) {
+          e.preventDefault();
+        }
       }
 
       function draw(e) {
         if (!drawing) return;
 
-        let pos;
-        if (e.type === "mousemove") {
-          pos = getMousePos(e);
-        } else if (e.type === "touchmove") {
-          e.preventDefault();
-          pos = getTouchPos(e.touches[0]);
-        }
+        const coords = getEventCoords(e);
 
         ctx.lineWidth = 4;
         ctx.lineCap = "round";
@@ -151,28 +154,48 @@
 
         ctx.beginPath();
         ctx.moveTo(lastX, lastY);
-        ctx.lineTo(pos.x, pos.y);
+        ctx.lineTo(coords.x, coords.y);
         ctx.stroke();
 
-        lastX = pos.x;
-        lastY = pos.y;
+        lastX = coords.x;
+        lastY = coords.y;
+
+        // Prevent scrolling on all touch devices
+        if (e.type.includes("touch")) {
+          e.preventDefault();
+        }
       }
 
       function stopDrawing() {
         drawing = false;
       }
 
-      // Mouse events
+      // Event listeners for both mouse and touch
       canvas.addEventListener("mousedown", startDrawing);
       canvas.addEventListener("mousemove", draw);
       canvas.addEventListener("mouseup", stopDrawing);
       canvas.addEventListener("mouseout", stopDrawing);
-
-      // Touch events
       canvas.addEventListener("touchstart", startDrawing, { passive: false });
       canvas.addEventListener("touchmove", draw, { passive: false });
       canvas.addEventListener("touchend", stopDrawing);
       canvas.addEventListener("touchcancel", stopDrawing);
+
+      // Prevent touch scrolling on the canvas
+      canvas.addEventListener(
+        "touchstart",
+        function (e) {
+          if (e.target == canvas) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+
+      // Handle Windows specific pointer events
+      canvas.addEventListener("pointerdown", startDrawing);
+      canvas.addEventListener("pointermove", draw);
+      canvas.addEventListener("pointerup", stopDrawing);
+      canvas.addEventListener("pointerout", stopDrawing);
 
       function clearCanvas() {
         ctx.fillStyle = "white";
