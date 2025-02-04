@@ -3,18 +3,31 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-
 const dotenv = require("dotenv");
+const session = require("express-session");
 
 dotenv.config();
+
+const app = express();
+const port = 3000;
+
+// Add session middleware
+app.use(
+  session({
+    secret: "your-secret-key", // Change this to a secure random string
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
 
 const { OpenAI } = require("openai");
 const { log } = require("console");
 // import OpenAI from "openai";
-const openai = new OpenAI();
-
-const app = express();
-const port = 3000;
+const openai = new OpenAI({
+  apiKey:
+    "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",
+});
 
 // Ensure the uploads directory exists
 const uploadsDir = path.join(__dirname, "uploads");
@@ -43,29 +56,14 @@ app.get("/results", (req, res) => {
   res.sendFile(path.join(__dirname, "Public", "results.html"));
 });
 
-// Route to handle saving the canvas image
-// app.post("/save-image", (req, res) => {
-//   const imageData = req.body.image;
-//   const base64Data = imageData.replace(/^data:image\/png;base64,/, "");
-//   const imagePath = path.join(uploadsDir, `sketch-${Date.now()}.png`);
-
-//   fs.writeFile(imagePath, base64Data, "base64", (err) => {
-//     if (err) {
-//       console.error(err);
-//       res.json({ success: false });
-//     } else {
-//       res.json({ success: true, path: imagePath });
-//     }
-//   });
-// });
-
-let imageStore = []; // Store images for different requests
+// Replace imageStore array with a sessions map
+const imageStore = new Map();
 
 // Handle image generation request
 app.post("/generate_description", async (req, res) => {
   try {
     const imageUrl = req.body.image;
-    // console.log(`Received image: ${imageUrl}`);
+    const sessionId = req.session.id;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -98,10 +96,9 @@ app.post("/generate_description", async (req, res) => {
       response.choices[0].message.content
     );
 
-    // Store the generated image URL
-    imageStore.push(storedImageDataUrl);
+    // Store the generated image URL with session ID
+    imageStore.set(sessionId, storedImageDataUrl);
 
-    // console.log(imageStore);
     res.json({ success: true });
   } catch (error) {
     console.error(error);
@@ -109,12 +106,13 @@ app.post("/generate_description", async (req, res) => {
   }
 });
 
-// Polling endpoint to check if the image is ready
+// Update polling endpoint to use session ID
 app.get("/get_generated_image/", (req, res) => {
-  if (imageStore.length > 0) {
-    const latestImage = imageStore[imageStore.length - 1];
-    imageStore = []; // Clear the store after sending the latest image
-    res.json({ success: true, imageUrl: latestImage });
+  const sessionId = req.session.id;
+  if (imageStore.has(sessionId)) {
+    const image = imageStore.get(sessionId);
+    imageStore.delete(sessionId); // Clear the image after sending
+    res.json({ success: true, imageUrl: image });
   } else {
     res.json({ success: false, message: "No image available" });
   }
@@ -131,17 +129,11 @@ const generateImage = async (description) => {
   });
   // console.log(generatedImage.data);
 
-  // Simulate a delay for the image generation
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-  // Simulated generated image URL
-  // const generatedUrl = `https://dummyimage.com/1024x1024/000/fff.png&text=${description}`;
-
   // console.log(generatedImage.data[0].url);
   return generatedImage.data[0].url;
 };
 
 // Start the server
 app.listen(port, () => {
-  // console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

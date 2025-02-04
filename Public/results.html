@@ -110,8 +110,18 @@
     </style>
 
     <script>
+      let pollCount = 0;
+      const maxPolls = 20; // Maximum number of polling attempts
+
       async function fetchAndDisplayImage() {
         try {
+          if (pollCount >= maxPolls) {
+            document.getElementById("loader").style.display = "none";
+            alert("Image generation timed out. Please try again.");
+            window.location.href = "/";
+            return;
+          }
+
           const response = await fetch("/get_generated_image/");
           const result = await response.json();
 
@@ -123,12 +133,13 @@
             document.getElementById("homeButton").style.display =
               "inline-block";
           } else {
-            console.log("No image available");
-            setTimeout(fetchAndDisplayImage, 3000); // Retry after 3 seconds
+            pollCount++;
+            setTimeout(fetchAndDisplayImage, 3000);
           }
         } catch (error) {
           console.error("Error fetching image:", error);
-          setTimeout(fetchAndDisplayImage, 3000); // Retry on error
+          pollCount++;
+          setTimeout(fetchAndDisplayImage, 3000);
         }
       }
 
