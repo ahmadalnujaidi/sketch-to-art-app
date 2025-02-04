@@ -183,14 +183,6 @@
         // Prevent default form submission
         event.preventDefault();
 
-        // Show loading state
-        const submitBtn = document.querySelector(
-          '.btn[onclick="saveCanvas()"]'
-        );
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = "Processing...";
-        submitBtn.disabled = true;
-
         // Convert canvas to JPEG with lower quality for iOS
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const image = canvas.toDataURL(
@@ -198,42 +190,18 @@
           isIOS ? 0.5 : 0.8
         );
 
-        fetch("/generate_description", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            image: image,
-            deviceInfo: {
-              userAgent: navigator.userAgent,
-              isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
-            },
-          }),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              return response.text().then((text) => {
-                throw new Error(`Server error: ${text}`);
-              });
-            }
-            return response.json();
+        // Store the image data in sessionStorage
+        sessionStorage.setItem("pendingImage", image);
+        sessionStorage.setItem(
+          "deviceInfo",
+          JSON.stringify({
+            userAgent: navigator.userAgent,
+            isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
           })
-          .then((data) => {
-            if (data.success) {
-              window.location.href = "/results.html";
-            } else {
-              throw new Error(data.message || "Failed to process image");
-            }
-          })
-          .catch((error) => {
-            console.error("Submission error:", error);
-            alert("Error: " + error.message);
-          })
-          .finally(() => {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-          });
+        );
+
+        // Redirect immediately to results page
+        window.location.href = "/results.html";
       }
     </script>
     <div class="net"></div>

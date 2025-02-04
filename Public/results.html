@@ -110,6 +110,51 @@
     </style>
 
     <script>
+      let retryCount = 0;
+      const maxRetries = 20; // Maximum number of polling retries
+
+      async function submitAndPoll() {
+        const pendingImage = sessionStorage.getItem("pendingImage");
+        const deviceInfo = JSON.parse(
+          sessionStorage.getItem("deviceInfo") || "{}"
+        );
+
+        if (pendingImage) {
+          try {
+            // Submit the pending image
+            const submitResponse = await fetch("/generate_description", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                image: pendingImage,
+                deviceInfo: deviceInfo,
+              }),
+            });
+
+            if (!submitResponse.ok) {
+              throw new Error("Failed to submit image");
+            }
+
+            // Clear the pending image from storage
+            sessionStorage.removeItem("pendingImage");
+            sessionStorage.removeItem("deviceInfo");
+
+            // Start polling for results
+            await fetchAndDisplayImage();
+          } catch (error) {
+            console.error("Submission error:", error);
+            document.getElementById("loader").style.display = "none";
+            alert("Error submitting image: " + error.message);
+            window.location.href = "/sketch.html";
+          }
+        } else {
+          // If no pending image, just try to fetch existing result
+          await fetchAndDisplayImage();
+        }
+      }
+
       async function fetchAndDisplayImage() {
         try {
           const response = await fetch("/get_generated_image/");
@@ -122,18 +167,32 @@
             imageElement.style.display = "block";
             document.getElementById("homeButton").style.display =
               "inline-block";
+            retryCount = 0; // Reset retry count on success
           } else {
-            console.log("No image available");
-            setTimeout(fetchAndDisplayImage, 3000); // Retry after 3 seconds
+            retryCount++;
+            if (retryCount < maxRetries) {
+              setTimeout(fetchAndDisplayImage, 3000); // Retry after 3 seconds
+            } else {
+              document.getElementById("loader").style.display = "none";
+              alert("Image generation timed out. Please try again.");
+              window.location.href = "/sketch.html";
+            }
           }
         } catch (error) {
           console.error("Error fetching image:", error);
-          setTimeout(fetchAndDisplayImage, 3000); // Retry on error
+          retryCount++;
+          if (retryCount < maxRetries) {
+            setTimeout(fetchAndDisplayImage, 3000);
+          } else {
+            document.getElementById("loader").style.display = "none";
+            alert("Failed to generate image. Please try again.");
+            window.location.href = "/sketch.html";
+          }
         }
       }
 
-      // Start fetching when the page loads
-      fetchAndDisplayImage();
+      // Start the process when the page loads
+      submitAndPoll();
     </script>
 
     <div class="net"></div>
