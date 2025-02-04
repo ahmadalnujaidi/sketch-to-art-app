@@ -88,7 +88,7 @@ app.post("/generate_description", async (req, res) => {
     });
 
     // the text itself is in response.choices[0].message.content[0].text
-    // console.log(response.choices[0].message.content);
+    console.log(response.choices[0].message.content);
 
     // Generate a unique ID for this request
 
