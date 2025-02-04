@@ -59,6 +59,9 @@ let imageStore = []; // Store images for different requests
 app.post("/generate_description", async (req, res) => {
   try {
     const imageUrl = req.body.image;
+    const deviceInfo = req.body.deviceInfo;
+
+    console.log(`Processing request from device: ${deviceInfo?.userAgent}`);
 
     if (!imageUrl) {
       return res.status(400).json({
@@ -67,9 +70,22 @@ app.post("/generate_description", async (req, res) => {
       });
     }
 
-    // Add timeout for OpenAI requests
+    // Validate image data
+    if (!imageUrl.startsWith("data:image/")) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid image format",
+      });
+    }
+
+    // Process image with increased timeout for mobile devices
+    const timeoutDuration = deviceInfo?.isMobile ? 40000 : 25000;
+
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("OpenAI request timeout")), 25000);
+      setTimeout(
+        () => reject(new Error("OpenAI request timeout")),
+        timeoutDuration
+      );
     });
 
     const responsePromise = openai.chat.completions.create({
@@ -96,6 +112,9 @@ app.post("/generate_description", async (req, res) => {
 
     const response = await Promise.race([responsePromise, timeoutPromise]);
 
+    // Log success for debugging
+    console.log(`Successfully processed image from ${deviceInfo?.userAgent}`);
+
     // the text itself is in response.choices[0].message.content[0].text
     console.log(response.choices[0].message.content);
 
@@ -109,7 +128,11 @@ app.post("/generate_description", async (req, res) => {
     // console.log(imageStore);
     res.json({ success: true });
   } catch (error) {
-    console.error("Error details:", error);
+    console.error("Error processing request:", {
+      error: error.message,
+      stack: error.stack,
+      deviceInfo: req.body.deviceInfo,
+    });
     res.status(500).json({
       success: false,
       error: "Failed to process image",

@@ -69,7 +69,7 @@
       <img src="assets/companylogo1.png" alt="Company Logo" />
     </div>
     <div class="canvas-container">
-      <canvas id="sketchCanvas" width="1400" height="700"></canvas>
+      <canvas id="sketchCanvas"></canvas>
     </div>
     <div class="buttons">
       <button class="btn" onclick="clearCanvas()">Clear</button>
@@ -83,9 +83,24 @@
       let drawing = false;
       let lastX, lastY;
 
-      // Set canvas background to white
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Set canvas size based on device
+      function setCanvasSize() {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+          canvas.width = Math.min(window.innerWidth * 0.9, 800);
+          canvas.height = Math.min(window.innerHeight * 0.6, 600);
+        } else {
+          canvas.width = 1400;
+          canvas.height = 700;
+        }
+        // Reset the canvas background after resize
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // Set initial size and handle resize
+      setCanvasSize();
+      window.addEventListener("resize", setCanvasSize);
 
       function getMousePos(event) {
         const rect = canvas.getBoundingClientRect();
@@ -165,6 +180,9 @@
       }
 
       function saveCanvas() {
+        // Prevent default form submission
+        event.preventDefault();
+
         // Show loading state
         const submitBtn = document.querySelector(
           '.btn[onclick="saveCanvas()"]'
@@ -173,31 +191,31 @@
         submitBtn.textContent = "Processing...";
         submitBtn.disabled = true;
 
-        const image = canvas.toDataURL("image/png", 0.8); // Added compression
+        // Convert canvas to JPEG with lower quality for iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const image = canvas.toDataURL(
+          isIOS ? "image/jpeg" : "image/png",
+          isIOS ? 0.5 : 0.8
+        );
 
-        // Add timeout to the fetch
-        const timeoutDuration = 30000; // 30 seconds
-
-        const fetchPromise = fetch("/generate_description", {
+        fetch("/generate_description", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ image: image }),
-        });
-
-        // Create a timeout promise
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => {
-            reject(new Error("Request timed out"));
-          }, timeoutDuration);
-        });
-
-        // Race between fetch and timeout
-        Promise.race([fetchPromise, timeoutPromise])
+          body: JSON.stringify({
+            image: image,
+            deviceInfo: {
+              userAgent: navigator.userAgent,
+              isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
+            },
+          }),
+        })
           .then((response) => {
             if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+              return response.text().then((text) => {
+                throw new Error(`Server error: ${text}`);
+              });
             }
             return response.json();
           })
@@ -205,17 +223,14 @@
             if (data.success) {
               window.location.href = "/results.html";
             } else {
-              alert("Failed to process image. Please try again.");
+              throw new Error(data.message || "Failed to process image");
             }
           })
           .catch((error) => {
-            console.error("Error:", error);
-            alert(
-              "There was an error processing your image. Please try again."
-            );
+            console.error("Submission error:", error);
+            alert("Error: " + error.message);
           })
           .finally(() => {
-            // Reset button state
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
           });
