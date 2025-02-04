@@ -81,50 +81,83 @@
       const canvas = document.getElementById("sketchCanvas");
       const ctx = canvas.getContext("2d");
       let drawing = false;
+      let lastX, lastY;
 
       // Set canvas background to white
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      function getCoordinates(event) {
-        if (event.type.includes("touch")) {
-          // Prevent scrolling when touching the canvas
-          event.preventDefault();
-          const rect = canvas.getBoundingClientRect();
-          const touch = event.touches[0];
-          return {
-            x: touch.clientX - rect.left,
-            y: touch.clientY - rect.top,
-          };
-        } else {
-          return {
-            x: event.offsetX,
-            y: event.offsetY,
-          };
-        }
+      function getMousePos(event) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+        };
       }
 
-      function startDrawing(event) {
+      function getTouchPos(touch) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top,
+        };
+      }
+
+      function startDrawing(e) {
         drawing = true;
-        const coords = getCoordinates(event);
+        if (e.type === "mousedown") {
+          const pos = getMousePos(e);
+          lastX = pos.x;
+          lastY = pos.y;
+        } else if (e.type === "touchstart") {
+          e.preventDefault();
+          const pos = getTouchPos(e.touches[0]);
+          lastX = pos.x;
+          lastY = pos.y;
+        }
         ctx.beginPath();
-        ctx.moveTo(coords.x, coords.y);
+        ctx.moveTo(lastX, lastY);
       }
 
-      function draw(event) {
+      function draw(e) {
         if (!drawing) return;
-        const coords = getCoordinates(event);
+
+        let pos;
+        if (e.type === "mousemove") {
+          pos = getMousePos(e);
+        } else if (e.type === "touchmove") {
+          e.preventDefault();
+          pos = getTouchPos(e.touches[0]);
+        }
+
         ctx.lineWidth = 4;
         ctx.lineCap = "round";
         ctx.strokeStyle = "black";
-        ctx.lineTo(coords.x, coords.y);
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
+
+        lastX = pos.x;
+        lastY = pos.y;
       }
 
       function stopDrawing() {
         drawing = false;
-        ctx.beginPath();
       }
+
+      // Mouse events
+      canvas.addEventListener("mousedown", startDrawing);
+      canvas.addEventListener("mousemove", draw);
+      canvas.addEventListener("mouseup", stopDrawing);
+      canvas.addEventListener("mouseout", stopDrawing);
+
+      // Touch events
+      canvas.addEventListener("touchstart", startDrawing, { passive: false });
+      canvas.addEventListener("touchmove", draw, { passive: false });
+      canvas.addEventListener("touchend", stopDrawing);
+      canvas.addEventListener("touchcancel", stopDrawing);
 
       function clearCanvas() {
         ctx.fillStyle = "white";
@@ -152,45 +185,6 @@
             console.error("Error:", error);
           });
       }
-
-      // Mouse event listeners
-      canvas.addEventListener("mousedown", startDrawing);
-      canvas.addEventListener("mousemove", draw);
-      canvas.addEventListener("mouseup", stopDrawing);
-      canvas.addEventListener("mouseout", stopDrawing);
-
-      // Touch event listeners
-      canvas.addEventListener("touchstart", startDrawing);
-      canvas.addEventListener("touchmove", draw);
-      canvas.addEventListener("touchend", stopDrawing);
-      canvas.addEventListener("touchcancel", stopDrawing);
-
-      // Prevent default touch behavior to avoid scrolling while drawing
-      canvas.addEventListener(
-        "touchstart",
-        function (e) {
-          e.preventDefault();
-        },
-        { passive: false }
-      );
-      canvas.addEventListener(
-        "touchmove",
-        function (e) {
-          e.preventDefault();
-        },
-        { passive: false }
-      );
-      canvas.addEventListener(
-        "touchend",
-        function (e) {
-          e.preventDefault();
-        },
-        { passive: false }
-      );
-
-      // drawing with touch
-
-      // ######################################################################
     </script>
     <div class="net"></div>
 
