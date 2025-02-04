@@ -62,6 +62,22 @@
         top: 0;
         z-index: -1;
       }
+      .loading {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        color: white;
+      }
+      .loading.active {
+        display: flex;
+      }
     </style>
   </head>
   <body>
@@ -76,6 +92,9 @@
       <a href="/results.html"
         ><button class="btn" onclick="saveCanvas()">Submit</button></a
       >
+    </div>
+    <div class="loading" id="loadingIndicator">
+      <div>Processing your artwork...</div>
     </div>
     <script>
       const canvas = document.getElementById("sketchCanvas");
@@ -164,25 +183,79 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
+      function showLoading() {
+        document.getElementById("loadingIndicator").classList.add("active");
+      }
+
+      function hideLoading() {
+        document.getElementById("loadingIndicator").classList.remove("active");
+      }
+
       function saveCanvas() {
-        const image = canvas.toDataURL("image/png");
-        fetch("/generate_description", {
+        showLoading();
+
+        // Reduce canvas size before sending
+        const tempCanvas = document.createElement("canvas");
+        const tempCtx = tempCanvas.getContext("2d");
+        const maxSize = 800; // Maximum dimension
+        let width = canvas.width;
+        let height = canvas.height;
+
+        // Calculate new dimensions
+        if (width > height && width > maxSize) {
+          height *= maxSize / width;
+          width = maxSize;
+        } else if (height > maxSize) {
+          width *= maxSize / height;
+          height = maxSize;
+        }
+
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+
+        // Draw original canvas to temporary canvas
+        tempCtx.fillStyle = "white";
+        tempCtx.fillRect(0, 0, width, height);
+        tempCtx.drawImage(canvas, 0, 0, width, height);
+
+        const image = tempCanvas.toDataURL("image/jpeg", 0.8);
+
+        // Create timeout promise
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("Request timeout")), 30000); // 30 second timeout
+        });
+
+        // Create fetch promise
+        const fetchPromise = fetch("/generate_description", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ image: image }),
-        })
-          .then((response) => response.json())
+        });
+
+        // Race between fetch and timeout
+        Promise.race([fetchPromise, timeoutPromise])
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
           .then((data) => {
+            hideLoading();
             if (data.success) {
-              alert("Image saved successfully!");
+              window.location.href = "/results.html";
             } else {
-              alert("Failed to save image.");
+              alert("Failed to process image. Please try again.");
             }
           })
           .catch((error) => {
+            hideLoading();
             console.error("Error:", error);
+            alert(
+              "There was an error processing your artwork. Please try again."
+            );
           });
       }
     </script>
