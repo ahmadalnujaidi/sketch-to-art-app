@@ -138,23 +138,20 @@
       canvas.addEventListener("mouseup", stopDrawing);
       canvas.addEventListener("mouseout", stopDrawing);
 
-      // touch screens
-      canvas.addEventListener("touchstart", function (event) {
+      // touch screens and prevent default scrolling
+      canvas.addEventListener("touchstart", (event) => {
         event.preventDefault();
-        startDrawing;
+        startDrawing(event.touches[0]);
       });
-      canvas.addEventListener("touchmove", function (event) {
+      canvas.addEventListener("touchmove", (event) => {
         event.preventDefault();
-        draw;
+        draw(event.touches[0]);
       });
-      canvas.addEventListener("touchend", function (event) {
+      canvas.addEventListener("touchend", (event) => {
         event.preventDefault();
-        stopDrawing;
+        stopDrawing();
       });
-      canvas.addEventListener("touchcancel", function (event) {
-        event.preventDefault();
-        stopDrawing;
-      });
+
       // ######################################################################
     </script>
     <div class="net"></div>
