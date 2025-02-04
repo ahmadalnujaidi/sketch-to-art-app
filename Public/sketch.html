@@ -86,18 +86,38 @@
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      function getCoordinates(event) {
+        if (event.type.includes("touch")) {
+          // Prevent scrolling when touching the canvas
+          event.preventDefault();
+          const rect = canvas.getBoundingClientRect();
+          const touch = event.touches[0];
+          return {
+            x: touch.clientX - rect.left,
+            y: touch.clientY - rect.top,
+          };
+        } else {
+          return {
+            x: event.offsetX,
+            y: event.offsetY,
+          };
+        }
+      }
+
       function startDrawing(event) {
         drawing = true;
+        const coords = getCoordinates(event);
         ctx.beginPath();
-        ctx.moveTo(event.offsetX, event.offsetY);
+        ctx.moveTo(coords.x, coords.y);
       }
 
       function draw(event) {
         if (!drawing) return;
+        const coords = getCoordinates(event);
         ctx.lineWidth = 4;
         ctx.lineCap = "round";
         ctx.strokeStyle = "black";
-        ctx.lineTo(event.offsetX, event.offsetY);
+        ctx.lineTo(coords.x, coords.y);
         ctx.stroke();
       }
 
@@ -133,10 +153,40 @@
           });
       }
 
+      // Mouse event listeners
       canvas.addEventListener("mousedown", startDrawing);
       canvas.addEventListener("mousemove", draw);
       canvas.addEventListener("mouseup", stopDrawing);
       canvas.addEventListener("mouseout", stopDrawing);
+
+      // Touch event listeners
+      canvas.addEventListener("touchstart", startDrawing);
+      canvas.addEventListener("touchmove", draw);
+      canvas.addEventListener("touchend", stopDrawing);
+      canvas.addEventListener("touchcancel", stopDrawing);
+
+      // Prevent default touch behavior to avoid scrolling while drawing
+      canvas.addEventListener(
+        "touchstart",
+        function (e) {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+      canvas.addEventListener(
+        "touchmove",
+        function (e) {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+      canvas.addEventListener(
+        "touchend",
+        function (e) {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
 
       // drawing with touch
 
