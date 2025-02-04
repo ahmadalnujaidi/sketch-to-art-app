@@ -139,42 +139,8 @@
       canvas.addEventListener("mouseout", stopDrawing);
 
       // touch screens
-      function getTouchPos(touchEvent) {
-        const rect = canvas.getBoundingClientRect();
-        return {
-          x: touchEvent.touches[0].clientX - rect.left,
-          y: touchEvent.touches[0].clientY - rect.top,
-        };
-      }
-
-      function touchStart(event) {
-        event.preventDefault();
-        const touch = getTouchPos(event);
-        drawing = true;
-        ctx.beginPath();
-        ctx.moveTo(touch.x, touch.y);
-      }
-
-      function touchMove(event) {
-        event.preventDefault();
-        if (!drawing) return;
-        const touch = getTouchPos(event);
-        ctx.lineWidth = 4;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = "black";
-        ctx.lineTo(touch.x, touch.y);
-        ctx.stroke();
-      }
-
-      function touchEnd(event) {
-        event.preventDefault();
-        drawing = false;
-        ctx.beginPath();
-      }
-
-      canvas.addEventListener("touchstart", touchStart);
-      canvas.addEventListener("touchmove", touchMove);
-      canvas.addEventListener("touchend", touchEnd);
+      
+      // ######################################################################
     </script>
     <div class="net"></div>
 
