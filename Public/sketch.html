@@ -138,20 +138,6 @@
       canvas.addEventListener("mouseup", stopDrawing);
       canvas.addEventListener("mouseout", stopDrawing);
 
-      // touch screens and prevent default scrolling
-      canvas.addEventListener("touchstart", (event) => {
-        event.preventDefault();
-        startDrawing(event.touches[0]);
-      });
-      canvas.addEventListener("touchmove", (event) => {
-        event.preventDefault();
-        draw(event.touches[0]);
-      });
-      canvas.addEventListener("touchend", (event) => {
-        event.preventDefault();
-        stopDrawing();
-      });
-
       // ######################################################################
     </script>
     <div class="net"></div>
