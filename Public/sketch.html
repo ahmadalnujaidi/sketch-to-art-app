@@ -139,7 +139,22 @@
       canvas.addEventListener("mouseout", stopDrawing);
 
       // touch screens
-      
+      canvas.addEventListener("touchstart", function (event) {
+        event.preventDefault();
+        startDrawing;
+      });
+      canvas.addEventListener("touchmove", function (event) {
+        event.preventDefault();
+        draw;
+      });
+      canvas.addEventListener("touchend", function (event) {
+        event.preventDefault();
+        stopDrawing;
+      });
+      canvas.addEventListener("touchcancel", function (event) {
+        event.preventDefault();
+        stopDrawing;
+      });
       // ######################################################################
     </script>
     <div class="net"></div>

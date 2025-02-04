@@ -17,13 +17,12 @@ app.use(
     secret: "your-secret-key", // Change this to a secure random string
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
+    cookie: { secure: true }, // Set to true if using HTTPS
   })
 );
 
 const { OpenAI } = require("openai");
 const { log } = require("console");
-// import OpenAI from "openai";
 const openai = new OpenAI({
   apiKey:
     "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",
@@ -127,8 +126,8 @@ const generateImage = async (description) => {
     style: "natural",
     n: 1,
   });
-  // console.log(generatedImage.data);
 
+  // console.log(generatedImage.data);
   // console.log(generatedImage.data[0].url);
   return generatedImage.data[0].url;
 };
