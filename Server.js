@@ -96,7 +96,7 @@ app.post("/generate_description", async (req, res) => {
           content: [
             {
               type: "text",
-              text: "whats in this image? only say the items. absolutely nothing else. dont use any symbols.",
+              text: "whats in this image? Only say the whats in the image and where they are, absolutely nothing else. Dont use any symbols, only commas and periods if necessary.",
             },
             {
               type: "image_url",
@@ -157,12 +157,12 @@ const generateImage = async (description) => {
 
   const generatedImage = await openai.images.generate({
     model: "dall-e-3",
-    prompt: `a painting of ${description}`,
-    style: "natural",
+    prompt: `${description}`,
+    // style: "natural",
     n: 1,
   });
 
-  // console.log(generatedImage.data);
+  console.log(generatedImage.data);
   // console.log(generatedImage.data[0].url);
 
   return generatedImage.data[0].url;
