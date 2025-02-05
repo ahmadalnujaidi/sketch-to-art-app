@@ -96,7 +96,11 @@ app.post("/generate_description", async (req, res) => {
           content: [
             {
               type: "text",
-              text: "whats in this image? Only say the whats in the image and where they are, absolutely nothing else. Dont use any symbols, only commas and periods if necessary.",
+              text: `
+              what's in this image?
+              Only say the what are in the image and where they are. Absolutely nothing else!
+              Dont use any symbols, only commas and periods if necessary.
+              `,
             },
             {
               type: "image_url",
