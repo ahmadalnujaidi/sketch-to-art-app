@@ -98,7 +98,8 @@ app.post("/generate_description", async (req, res) => {
               type: "text",
               text: `
               what's in this image?
-              Only say what's in the image and where they are. Absolutely nothing else.
+              Only say what's in the image and where they are. Absolutely nothing else. for example: "A cat on a table", "A person in a park".
+              Any stick figures should be described as "a person".
               Dont use any symbols, only commas and periods if necessary.
               `,
             },
