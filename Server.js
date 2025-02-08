@@ -163,8 +163,8 @@ const generateImage = async (description) => {
   const generatedImage = await openai.images.generate({
     model: "dall-e-3",
     prompt: `${description}`,
-    // style: "natural",
-    n: 1,
+    style: "natural",
+    // n: 1,
   });
 
   console.log(generatedImage.data);
