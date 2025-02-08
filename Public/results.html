@@ -28,6 +28,7 @@
       }
 
       .container {
+        position: relative; /* added for watermark positioning */
         text-align: center;
         background: rgba(255, 255, 255, 0.263);
         padding: 20px;
@@ -70,22 +71,26 @@
         height: auto;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        filter: drop-shadow(
+          5px 5px 10px rgba(0, 0, 0, 0.616)
+        ); /* added drop shadow */
       }
-      /* Override logo position only on index.html */
+      /* Updated logo styling for watermark in top-right */
       .logo-container {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
+        position: absolute;
+        top: 10px;
+        right: 10px;
         z-index: 1000;
+        display: none; /* hide watermark until image loads */
       }
     </style>
   </head>
   <body>
-    <div class="logo-container">
-      <img src="assets/companylogo1.png" alt="Company Logo" />
-    </div>
     <div class="container">
+      <!-- Moved logo-container inside container -->
+      <div class="logo-container">
+        <img src="assets/companylogo1.png" alt="Company Logo" />
+      </div>
       <!-- <h1>Generated Image</h1> -->
       <div id="loader" class="loader"></div>
       <!-- New Loading Spinner -->
@@ -175,6 +180,8 @@
             imageElement.style.display = "block";
             document.getElementById("homeButton").style.display =
               "inline-block";
+            // Show watermark only after successful image load
+            document.querySelector(".logo-container").style.display = "block";
             retryCount = 0; // Reset retry count on success
           } else {
             retryCount++;
